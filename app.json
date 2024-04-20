@@ -1,7 +1,8 @@
 {
   "expo": {
-    "name": "news-app-react-native",
-    "slug": "news-app-react-native",
+    "name": "news",
+    "slug": "news",
+    "scheme": "news",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -21,10 +22,14 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.test.news"
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      "expo-router"
+    ]
   }
 }
