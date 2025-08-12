@@ -7,8 +7,14 @@ node_modules/
 .expo/
 dist/
 web-build/
+expo-env.d.ts
+
+.env
+
+config.ts
 
 # Native
+.kotlin/
 *.orig.*
 *.jks
 *.p8
@@ -34,5 +40,4 @@ yarn-error.*
 # typescript
 *.tsbuildinfo
 
-config.js
-note.txt
+app-example
