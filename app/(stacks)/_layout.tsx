@@ -12,10 +12,15 @@ const StackLayout = () => {
   return (
     <>
       <Stack>
-        <Stack.Screen name="search/[query]" options={{headerShown: false}} />
-        <Stack.Screen name="news/details/[id]" options={{headerShown: false}} />
+        <Stack.Screen
+          name="search/[query]"
+          options={{title: "Search News", headerBackTitle: "Back"}}
+        />
+        <Stack.Screen
+          name="news/details/[id]"
+          options={{title: "News", headerBackTitle: "Back"}}
+        />
       </Stack>
-
       <Loader isLoading={loading} />
       <StatusBar style="dark" />
     </>

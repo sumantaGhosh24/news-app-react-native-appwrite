@@ -1,54 +1,75 @@
+import {zodResolver} from "@hookform/resolvers/zod";
 import {Link, router} from "expo-router";
 import {useState} from "react";
+import {Controller, useForm} from "react-hook-form";
 import {
-  Dimensions,
-  Image,
-  ScrollView,
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
   Text,
+  TextInput,
   ToastAndroid,
+  TouchableOpacity,
   View,
 } from "react-native";
-import {SafeAreaView} from "react-native-safe-area-context";
+import * as z from "zod";
 
-import {CustomButton, FormField} from "@/components";
 import {useGlobalContext} from "@/context/global-provider";
 import {createUser} from "@/lib/appwrite";
 
-const SignUp = () => {
-  const {setUser, setIsLogged} = useGlobalContext();
-
-  const [isSubmitting, setSubmitting] = useState(false);
-  const [form, setForm] = useState({
-    name: "",
-    username: "",
-    email: "",
-    password: "",
+const schema = z
+  .object({
+    name: z
+      .string()
+      .min(1, "Name must be 3 characters long")
+      .max(25, "Name not lot longer than 25 characters long"),
+    username: z
+      .string()
+      .min(1, "Username must be 3 characters long")
+      .max(25, "Username not lot longer than 25 characters long"),
+    email: z.email("Invalid email address"),
+    password: z
+      .string()
+      .min(8, "Password must be at least 8 characters long")
+      .max(25, "Password is too long"),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Password and confirm password not match",
+    path: ["confirmPassword"],
   });
 
-  const submit = async () => {
-    if (
-      form.username === "" ||
-      form.email === "" ||
-      form.password === "" ||
-      form.name === ""
-    ) {
-      ToastAndroid.showWithGravityAndOffset(
-        "Please fill in all fields",
-        ToastAndroid.LONG,
-        ToastAndroid.BOTTOM,
-        25,
-        50
-      );
-      return;
-    }
+type FormData = z.infer<typeof schema>;
 
-    setSubmitting(true);
+const SignUp = () => {
+  const {setUser, setIsLogged} = useGlobalContext();
+  const [loading, setLoading] = useState(false);
+
+  const {
+    control,
+    handleSubmit,
+    formState: {errors},
+  } = useForm<FormData>({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      name: "",
+      username: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+    },
+    mode: "onChange",
+  });
+
+  const onSignUp = async (data: FormData) => {
+    setLoading(true);
+
     try {
       const result = await createUser(
-        form.email,
-        form.password,
-        form.username,
-        form.name
+        data.email,
+        data.password,
+        data.username,
+        data.name
       );
       setUser(result);
       setIsLogged(true);
@@ -71,72 +92,143 @@ const SignUp = () => {
         50
       );
     } finally {
-      setSubmitting(false);
+      setLoading(false);
     }
   };
 
   return (
-    <SafeAreaView className="h-full">
-      <ScrollView>
-        <View
-          className="w-full flex justify-center h-full px-4 my-5"
-          style={{
-            minHeight: Dimensions.get("window").height - 100,
-          }}
-        >
-          <Image
-            source={require("../../assets/images/logo.png")}
-            className="w-20 h-20"
-            resizeMode="contain"
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      className="flex-1 bg-white p-6"
+    >
+      <View className="flex-1 justify-center w-full max-w-md mx-auto">
+        <Text className="text-4xl font-bold text-gray-900 mb-2">
+          Sign up user
+        </Text>
+        <Text className="text-lg text-gray-600 mb-8">
+          Sign up to create and view news
+        </Text>
+        <View className="gap-2">
+          <Controller
+            control={control}
+            name="name"
+            render={({field: {onChange, value}}) => (
+              <View>
+                <TextInput
+                  autoCapitalize="none"
+                  placeholder="Name"
+                  value={value}
+                  onChangeText={onChange}
+                  className="bg-gray-100 border border-gray-300 rounded-xl p-4 text-gray-900"
+                />
+                {errors.name && (
+                  <Text className="text-red-500">{errors.name.message}</Text>
+                )}
+              </View>
+            )}
           />
-          <Text className="text-2xl font-bold my-5">Sign up to get News</Text>
-          <FormField
-            title="Name"
-            value={form.name}
-            handleChangeText={(e) => setForm({...form, name: e})}
-            otherStyles="mt-5"
-            placeholder="Enter your name"
+          <Controller
+            control={control}
+            name="username"
+            render={({field: {onChange, value}}) => (
+              <View>
+                <TextInput
+                  autoCapitalize="none"
+                  placeholder="Username"
+                  value={value}
+                  onChangeText={onChange}
+                  className="bg-gray-100 border border-gray-300 rounded-xl p-4 text-gray-900"
+                />
+                {errors.username && (
+                  <Text className="text-red-500">
+                    {errors.username.message}
+                  </Text>
+                )}
+              </View>
+            )}
           />
-          <FormField
-            title="Username"
-            value={form.username}
-            handleChangeText={(e) => setForm({...form, username: e})}
-            otherStyles="mt-5"
-            placeholder="Enter your username"
+          <Controller
+            control={control}
+            name="email"
+            render={({field: {onChange, value}}) => (
+              <View>
+                <TextInput
+                  autoCapitalize="none"
+                  placeholder="Email address"
+                  value={value}
+                  onChangeText={onChange}
+                  className="bg-gray-100 border border-gray-300 rounded-xl p-4 text-gray-900"
+                />
+                {errors.email && (
+                  <Text className="text-red-500">{errors.email.message}</Text>
+                )}
+              </View>
+            )}
           />
-          <FormField
-            title="Email"
-            value={form.email}
-            handleChangeText={(e) => setForm({...form, email: e})}
-            otherStyles="mt-5"
-            placeholder="Enter your email"
+          <Controller
+            control={control}
+            name="password"
+            render={({field: {onChange, value}}) => (
+              <View>
+                <TextInput
+                  placeholder="Password"
+                  value={value}
+                  onChangeText={onChange}
+                  secureTextEntry
+                  className="bg-gray-100 border border-gray-300 rounded-xl p-4 text-gray-900"
+                />
+                {errors.password && (
+                  <Text className="text-red-500">
+                    {errors.password.message}
+                  </Text>
+                )}
+              </View>
+            )}
           />
-          <FormField
-            title="Password"
-            value={form.password}
-            handleChangeText={(e) => setForm({...form, password: e})}
-            otherStyles="mt-5"
-            type="password"
-            placeholder="Enter your password"
+          <Controller
+            control={control}
+            name="confirmPassword"
+            render={({field: {onChange, value}}) => (
+              <View>
+                <TextInput
+                  placeholder="Confirm Password"
+                  value={value}
+                  onChangeText={onChange}
+                  secureTextEntry
+                  className="bg-gray-100 border border-gray-300 rounded-xl p-4 text-gray-900"
+                />
+                {errors.confirmPassword && (
+                  <Text className="text-red-500">
+                    {errors.confirmPassword.message}
+                  </Text>
+                )}
+              </View>
+            )}
           />
-          <CustomButton
-            title="Sign Up"
-            handlePress={submit}
-            containerStyles="mt-5 bg-blue-500"
-            isLoading={isSubmitting}
-          />
-          <View className="flex justify-center pt-5 flex-row gap-2 mb-5">
-            <Text className="text-lg">Have an account already?</Text>
-            <Link
-              href="/sign-in"
-              className="text-lg font-semibold text-blue-500"
-            >
-              Login
-            </Link>
-          </View>
         </View>
-      </ScrollView>
-    </SafeAreaView>
+        <TouchableOpacity
+          onPress={handleSubmit(onSignUp)}
+          disabled={loading}
+          className={`bg-blue-600 rounded-xl p-4 items-center mt-6 ${loading ? "opacity-50" : ""}`}
+        >
+          {loading ? (
+            <ActivityIndicator size="small" color="white" />
+          ) : (
+            <Text className="text-white font-semibold text-lg">
+              Create Account
+            </Text>
+          )}
+        </TouchableOpacity>
+        <View className="flex-row justify-center mt-4">
+          <Text className="text-gray-600">Already have an account? </Text>
+          <Link href="/sign-in" asChild>
+            <TouchableOpacity>
+              <Text className="text-blue-600 font-semibold">Sign In</Text>
+            </TouchableOpacity>
+          </Link>
+        </View>
+      </View>
+    </KeyboardAvoidingView>
   );
 };
 

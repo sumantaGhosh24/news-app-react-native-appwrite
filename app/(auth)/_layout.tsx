@@ -1,5 +1,6 @@
 import {Redirect, Stack} from "expo-router";
 import {StatusBar} from "expo-status-bar";
+import {Platform} from "react-native";
 
 import {Loader} from "@/components";
 import {useGlobalContext} from "@/context/global-provider";
@@ -16,16 +17,17 @@ const AuthLayout = () => {
           name="sign-in"
           options={{
             headerShown: false,
+            title: "Login",
           }}
         />
         <Stack.Screen
           name="sign-up"
           options={{
-            headerShown: false,
+            headerShown: Platform.OS !== "web",
+            title: "Register",
           }}
         />
       </Stack>
-
       <Loader isLoading={loading} />
       <StatusBar style="dark" />
     </>

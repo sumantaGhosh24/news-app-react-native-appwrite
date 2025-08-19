@@ -62,7 +62,6 @@ const TabLayout = () => {
             ),
           }}
         />
-
         <Tabs.Screen
           name="create"
           options={{
@@ -78,7 +77,6 @@ const TabLayout = () => {
             ),
           }}
         />
-
         <Tabs.Screen
           name="profile"
           options={{
@@ -95,9 +93,7 @@ const TabLayout = () => {
           }}
         />
       </Tabs>
-
       <Loader isLoading={loading} />
-
       <StatusBar style="dark" />
     </>
   );

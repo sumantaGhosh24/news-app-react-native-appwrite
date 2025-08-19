@@ -86,7 +86,6 @@ const Profile = () => {
                 </TouchableOpacity>
               </View>
             </View>
-
             <View className="w-16 h-16 border border-secondary rounded-lg flex justify-center items-center">
               <Image
                 source={{uri: user?.avatar}}
@@ -94,7 +93,6 @@ const Profile = () => {
                 resizeMode="cover"
               />
             </View>
-
             <InfoBox
               title={user?.username}
               containerStyles="mt-3"

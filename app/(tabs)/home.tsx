@@ -55,7 +55,6 @@ const Home = () => {
                 <Text className="font-medium text-sm">Home</Text>
                 <Text className="text-2xl font-semibold">Explore News</Text>
               </View>
-
               <View className="mt-1.5">
                 <Image
                   source={require("../../assets/images/logo.png")}
@@ -64,12 +63,9 @@ const Home = () => {
                 />
               </View>
             </View>
-
             <SearchInput />
-
             <View className="w-full flex-1 pt-5 pb-3">
               <Text className="text-lg font-bold mb-3">Latest News</Text>
-
               <Trending posts={latestPosts ?? []} />
             </View>
           </View>
